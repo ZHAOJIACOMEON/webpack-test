@@ -1,0 +1,51 @@
+@import 'config';
+
+/* BEM support Func
+ -------------------------- */
+
+//这里有人可能觉得这里是多此一举，但其实这里是通过inspect和str-slice把传入的选择器变量转换为字符串；因为在str-index 函数中传入的str-index($string, $substring)中，$string 必须要是一个字符串
+@function selectorToString($selector) {
+  $selector: inspect($selector);
+  $selector: str-slice($selector, 2, -2);
+  @return $selector;
+}
+
+//判断父级选择器是否包含'--'
+//看看当前选择器是否存在$modifier-separator这个变量也就是"--";
+@function containsModifier($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, $modifier-separator) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+//判断 父级选择器是否包含'.is-'
+//看看当前选择器是否存在$state-prefix这个变量也就是"is-";
+@function containWhenFlag($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, '.' + $state-prefix) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+//判断 父级是否包含 ':'
+//看看当前选择器是否存在"：";用于判断伪类和伪元素
+@function containPseudoClass($selector) {
+  $selector: selectorToString($selector);
+
+  @if str-index($selector, ':') {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+@function hitAllSpecialNestRule($selector) {
+  @return containsModifier($selector) or containWhenFlag($selector) or
+    containPseudoClass($selector);
+}
